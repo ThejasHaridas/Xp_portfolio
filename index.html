@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thejas Haridas — AI/ML Engineer</title>
+  <meta name="description" content="Portfolio of Thejas Haridas, AI/ML Engineer and Data Scientist from Kochi, Kerala — styled after Windows XP." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='2' y='2' width='13' height='13' fill='%23f35325'/><rect x='17' y='2' width='13' height='13' fill='%2381bc06'/><rect x='2' y='17' width='13' height='13' fill='%2305a6f0'/><rect x='17' y='17' width='13' height='13' fill='%23ffba08'/></svg>" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Boot screen -->
+  <div id="boot" class="screen">
+    <div class="boot-inner">
+      <div class="boot-logo">
+        <div class="flag"><span></span><span></span><span></span><span></span></div>
+        <div class="boot-text">
+          <small>Thejas Haridas</small>
+          <strong>Windows<sup>xp</sup></strong>
+          <em>Portfolio Edition</em>
+        </div>
+      </div>
+      <div class="boot-bar"><div class="boot-blocks"><i></i><i></i><i></i></div></div>
+    </div>
+    <div class="boot-foot"><span>Copyright © Thejas Haridas</span><span>Click anywhere to skip</span></div>
+  </div>
+
+  <!-- Login screen -->
+  <div id="login" class="screen hidden">
+    <div class="login-top"></div>
+    <div class="login-mid">
+      <div class="login-left">
+        <div class="flag big"><span></span><span></span><span></span><span></span></div>
+        <div class="login-brand">Windows<sup>xp</sup></div>
+        <p>To begin, click on your user name</p>
+      </div>
+      <div class="login-divider"></div>
+      <div class="login-right">
+        <button class="user-tile" id="userTile">
+          <span class="avatar">TH</span>
+          <span class="user-info">
+            <strong>Thejas Haridas</strong>
+            <small>AI/ML Engineer</small>
+          </span>
+        </button>
+      </div>
+    </div>
+    <div class="login-bottom">
+      <span class="power-btn" title="Turn off"><svg viewBox="0 0 24 24"><path d="M12 3v9M6.3 6.3a8 8 0 1 0 11.4 0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+      <span>Turn off computer</span>
+      <span class="login-hint">After you log on, double-click the icons to explore.</span>
+    </div>
+  </div>
+
+  <!-- Desktop -->
+  <div id="desktop" class="hidden">
+    <div id="icons" class="icons"></div>
+    <div id="windows"></div>
+
+    <!-- Start menu -->
+    <div id="startMenu" class="start-menu hidden" role="menu">
+      <div class="sm-header">
+        <span class="avatar sm">TH</span>
+        <strong>Thejas Haridas</strong>
+      </div>
+      <div class="sm-body">
+        <ul class="sm-left" id="smLeft"></ul>
+        <ul class="sm-right" id="smRight"></ul>
+      </div>
+      <div class="sm-footer">
+        <button data-action="logoff"><span class="sm-foot-ico key"></span>Log Off</button>
+        <button data-action="shutdown"><span class="sm-foot-ico power"></span>Turn Off Computer</button>
+      </div>
+    </div>
+
+    <!-- Taskbar -->
+    <div class="taskbar">
+      <button class="start-btn" id="startBtn"><span class="flag tiny"><span></span><span></span><span></span><span></span></span><em>start</em></button>
+      <div class="task-items" id="taskItems"></div>
+      <div class="tray">
+        <span class="tray-ico" title="Network: Connected">
+          <svg viewBox="0 0 16 16"><rect x="1" y="3" width="8" height="6" fill="#dfe8f7" stroke="#2a4c8f"/><rect x="7" y="7" width="8" height="6" fill="#dfe8f7" stroke="#2a4c8f"/></svg>
+        </span>
+        <span class="tray-ico" title="Volume">
+          <svg viewBox="0 0 16 16"><path d="M2 6h3l4-3v10l-4-3H2z" fill="#f4f4f4" stroke="#333"/><path d="M11 5c1.5 1.5 1.5 4.5 0 6" stroke="#fff" fill="none"/></svg>
+        </span>
+        <span id="clock"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shutdown screen -->
+  <div id="shutdown" class="screen hidden">
+    <div class="shutdown-box">
+      <p>It is now safe to turn off your computer.</p>
+      <button id="restartBtn">Restart</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
