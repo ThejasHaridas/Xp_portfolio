@@ -28,4 +28,7 @@ All portfolio content lives at the top of `script.js` (`PROFILE`, `EXPERIENCE`, 
 
 Apps live in `js/`. Each one registers itself on the shared `XP` API, which `script.js` defines.
 
-To turn on the **Download PDF** button in the Resume window, add your resume at `assets/Thejas_Haridas_Resume.pdf`.
+The downloadable resume at `assets/Thejas_Haridas_Resume.pdf` is generated from the same data, with the phone number left out. After editing content in `script.js`, rebuild it with:
+```bash
+npm i -D playwright && node tools/build-resume-pdf.mjs
+```

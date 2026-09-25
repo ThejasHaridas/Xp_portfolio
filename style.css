@@ -154,6 +154,7 @@ a { color: #0033cc; }
 .tp-box li { padding: 3px 0; font-size: 11px; color: #215dc6; cursor: pointer; display: flex; gap: 6px; align-items: center; }
 .tp-box li:hover { text-decoration: underline; color: #428eff; }
 .tp-box li svg { width: 16px; height: 16px; flex-shrink: 0; }
+.tp-link { display: flex; gap: 6px; align-items: center; color: inherit; text-decoration: none; }
 .tp-box p { margin: 0; padding: 8px 10px; font-size: 11px; line-height: 1.5; }
 .content { flex: 1; padding: 16px 20px; min-width: 0; font-size: 12px; line-height: 1.55; }
 

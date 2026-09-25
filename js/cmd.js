@@ -138,7 +138,21 @@
             print(`Location : ${PROFILE.location}`);
           },
         },
-        resume: { desc: "Open the resume", run() { print("Opening Resume.txt..."); open("resume"); } },
+        resume: {
+          desc: "Open the resume (RESUME PDF to download)",
+          run(args) {
+            if ((args[0] || "").toLowerCase() === "pdf") {
+              const a = document.createElement("a");
+              a.href = PROFILE.resumePdf;
+              a.download = "";
+              a.click();
+              print("Downloading Thejas_Haridas_Resume.pdf...");
+              return;
+            }
+            print("Opening Resume.txt...");
+            open("resume");
+          },
+        },
         hire: {
           desc: "Hire Thejas",
           run() {

@@ -204,7 +204,9 @@
       .map(
         (b) => `<div class="tp-box ${b.primary ? "primary" : ""}"><h4>${esc(b.title)}</h4>${
           b.links
-            ? `<ul>${b.links.map((l) => `<li data-open="${l.open || ""}" data-href="${l.href || ""}">${icon(l.icon)}${esc(l.label)}</li>`).join("")}</ul>`
+            ? `<ul>${b.links.map((l) => l.download
+              ? `<li><a class="tp-link" href="${l.download}" download>${icon(l.icon)}${esc(l.label)}</a></li>`
+              : `<li data-open="${l.open || ""}" data-href="${l.href || ""}">${icon(l.icon)}${esc(l.label)}</li>`).join("")}</ul>`
             : `<p>${b.html}</p>`
         }</div>`
       )
@@ -234,6 +236,7 @@
           ${taskpane([
             { title: "System Tasks", primary: true, links: [
               { label: "View my resume", icon: "notepad", open: "resume" },
+              { label: "Download resume (PDF)", icon: "pdf", download: PROFILE.resumePdf },
               { label: "View my skills", icon: "control", open: "skills" },
               { label: "Send me an e-mail", icon: "mail", open: "contact" },
             ] },
@@ -277,7 +280,7 @@
           ${taskpane([
             { title: "Career Tasks", primary: true, links: [
               { label: "View projects", icon: "docs", open: "projects" },
-              { label: "Download resume", icon: "pdf", open: "resume" },
+              { label: "Download resume (PDF)", icon: "pdf", download: PROFILE.resumePdf },
             ] },
             ...commonPane,
           ])}
@@ -380,16 +383,10 @@
       size: [640, 520],
       render: () => `
         <div class="menubar"><span>File</span><span>Edit</span><span>Format</span><span>View</span><span>Help</span></div>
-        <div class="toolbar" data-pdfbar hidden>
+        <div class="toolbar">
           <a class="xp-btn" href="${PROFILE.resumePdf}" download style="text-decoration:none;display:inline-flex;gap:4px;align-items:center">${icon("pdf").replace("<svg", '<svg width="16" height="16"')} Download PDF</a>
         </div>
         <div class="win-body"><div class="notepad" spellcheck="false">${esc(resumeText())}</div></div>`,
-      mount: (win) => {
-        // Show the download button only if a PDF has been added to /assets.
-        fetch(PROFILE.resumePdf, { method: "HEAD" })
-          .then((r) => { if (r.ok) $("[data-pdfbar]", win).hidden = false; })
-          .catch(() => {});
-      },
     },
 
     publications: {
