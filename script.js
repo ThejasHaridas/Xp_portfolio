@@ -61,18 +61,67 @@
       name: "Clinical PDF Extraction Pipeline",
       stack: ["vLLM", "Qwen Vision", "Python", "openpyxl", "JSON repair"],
       short: "vLLM + Qwen vision model",
+      flow: [
+        { t: "Clinical PDF", s: "Toxicology reports", k: "io" },
+        { t: "Rasterise pages", s: "PDF → page images", k: "proc" },
+        { t: "Qwen VL via vLLM", s: "Locally hosted model", k: "model" },
+        { t: "Table detection", s: "Phase 1", k: "proc" },
+        { t: "Structure consensus", s: "Phase 2", k: "proc" },
+        { t: "Row fill", s: "Phase 3 · XML prompts", k: "model" },
+        { t: "JSON repair", s: "Layered fallbacks", k: "guard" },
+        { t: "Validation", s: "Retry logic", k: "guard" },
+        { t: "JSON + Excel", s: "openpyxl output", k: "io" },
+      ],
+      loops: [{ from: 7, to: 6, label: "self-correction loop" }],
+      highlights: [
+        "Multi-phase extraction: table detection → structure consensus → row fill.",
+        "Self-correction loops and retry logic absorb model inconsistencies at scale.",
+        "Layered JSON repair fallbacks keep the pipeline from failing on malformed output.",
+        "Structured JSON and Excel deliverables generated with openpyxl.",
+      ],
       desc: "End-to-end pipeline that rasterises clinical toxicology PDF pages, sends them to a locally hosted Qwen vision model via vLLM, and extracts structured hematology/TK tables into JSON and Excel. Features multi-phase extraction (table detection → structure consensus → row fill), self-correction loops, and layered JSON repair fallbacks.",
     },
     {
       name: "Biomedical Knowledge Graph",
       stack: ["Neo4j", "Biolink", "Lucene", "Python", "YAML"],
       short: "Neo4j + Biolink ontology",
+      flow: [
+        { t: "Preclinical data", s: "Research entities", k: "io" },
+        { t: "YAML config", s: "Pipeline settings", k: "proc" },
+        { t: "Biolink mapping", s: "Ontology alignment", k: "model" },
+        { t: "Neo4j graph", s: "Nodes + relationships", k: "db" },
+        { t: "Lucene index", s: "Full-text search", k: "db" },
+        { t: "Input sanitisation", s: "Safe queries", k: "guard" },
+        { t: "Python query API", s: "Query interface", k: "proc" },
+        { t: "Semantic retrieval", s: "Entities + context", k: "io" },
+      ],
+      highlights: [
+        "Biolink ontology gives preclinical entities a standard, queryable schema.",
+        "Full-text Lucene indexing with input sanitisation for safe search.",
+        "YAML-driven configuration keeps the pipeline reproducible.",
+        "Python query interface for semantic entity retrieval.",
+      ],
       desc: "Knowledge graph system for preclinical research data using Neo4j and the Biolink ontology. Implemented full-text Lucene indexing with input sanitisation, YAML-based configuration, and a Python query interface for semantic entity retrieval.",
     },
     {
       name: "Alcohol Sales Prediction",
       stack: ["FastText", "BiGRU", "Self-Attention", "SHAP", "TensorFlow"],
       short: "FastText + BiGRU + Attention",
+      flow: [
+        { t: "Sales text data", s: "Raw records", k: "io" },
+        { t: "Preprocessing", s: "Clean + tokenise", k: "proc" },
+        { t: "FastText", s: "Word embeddings", k: "model" },
+        { t: "BiGRU layers", s: "Sequence encoder", k: "model" },
+        { t: "Self-attention", s: "Weighted context", k: "model" },
+        { t: "Dense head", s: "Classifier", k: "proc" },
+        { t: "Prediction", s: "Sales forecast", k: "io" },
+        { t: "SHAP analysis", s: "Explainability", k: "guard" },
+      ],
+      highlights: [
+        "FastText embeddings feed bidirectional GRU layers.",
+        "Self-attention highlights the most informative tokens.",
+        "SHAP explainability for model interpretability in a regulated context.",
+      ],
       desc: "Text classification pipeline using FastText embeddings, BiGRU layers, and a self-attention mechanism for sales forecasting. Included SHAP-based explainability analysis for model interpretability in a regulated context.",
     },
   ];
@@ -264,7 +313,7 @@
           ])}
           <div class="content">
             <h2>Projects</h2>
-            <p class="sub">Select a project to see its details.</p>
+            <p class="sub">Click a project to preview it; double-click to open its folder.</p>
             <div class="file-grid">
               ${PROJECTS.map((p, i) => `
                 <button class="file-item${i === 0 ? " active" : ""}" data-project="${i}">
@@ -280,10 +329,15 @@
         const detail = $("[data-detail]", win);
         const show = (i) => {
           const p = PROJECTS[i];
-          detail.innerHTML = `<h4>${esc(p.name)}</h4><p>${esc(p.desc)}</p><div>${tags(p.stack)}</div>`;
+          detail.innerHTML = `<h4>${esc(p.name)}</h4><p>${esc(p.desc)}</p><div>${tags(p.stack)}</div>${diagram(p)}
+            <p><button class="xp-btn" data-open-project="${i}">${icon("folder").replace("<svg", '<svg width="14" height="14"')} Open project folder</button></p>`;
+          $("[data-open-project]", detail).addEventListener("click", () => openApp("project" + i));
           win.querySelectorAll(".file-item").forEach((b) => b.classList.toggle("active", +b.dataset.project === i));
         };
-        win.querySelectorAll(".file-item").forEach((b) => b.addEventListener("click", () => show(+b.dataset.project)));
+        win.querySelectorAll(".file-item").forEach((b) => {
+          b.addEventListener("click", () => show(+b.dataset.project));
+          b.addEventListener("dblclick", () => openApp("project" + b.dataset.project));
+        });
         show(0);
       },
     },
@@ -481,9 +535,14 @@
     ["contact", "Contact Me"],
     ["ie", "Internet Explorer"],
     ["achievements", "Achievements"],
+    ["cmd", "Command Prompt"],
+    ["paint", "Paint"],
+    ["winamp", "Winamp"],
+    ["solitaire", "Solitaire"],
     ["minesweeper", "Minesweeper"],
     ["recycle", "Recycle Bin"],
   ];
+  const DESKTOP_DEFAULT = DESKTOP.slice();
 
   const START_LEFT = [
     ["ie", "Internet", "Links & socials"],
@@ -491,8 +550,18 @@
     "sep",
     ["about", "About Me"],
     ["projects", "My Projects"],
-    ["experience", "Experience"],
-    ["minesweeper", "Minesweeper"],
+    ["cmd", "Command Prompt"],
+    ["winamp", "Winamp"],
+    ["paint", "Paint"],
+    "sep",
+    "all",
+  ];
+  const ALL_PROGRAMS = [
+    { label: "Accessories", submenu: [["cmd", "Command Prompt"], ["paint", "Paint"], ["resume", "Notepad"]] },
+    { label: "Games", submenu: [["minesweeper", "Minesweeper"], ["solitaire", "Solitaire"]] },
+    ["ie", "Internet Explorer"],
+    ["contact", "Outlook Express"],
+    ["winamp", "Winamp"],
   ];
   const START_RIGHT = [
     ["resume", "My Resume"],
@@ -500,9 +569,12 @@
     ["achievements", "My Achievements"],
     "sep",
     ["skills", "Control Panel"],
+    ["display", "Display Properties"],
     ["about", "My Computer"],
     "sep",
     ["help", "Help and Support"],
+    ["assistant", "Ask the Assistant"],
+    ["cmd", "Run..."],
   ];
 
   APPS.help = {
@@ -517,14 +589,21 @@
           <li>Drag windows by their title bar; resize from the bottom-right corner.</li>
           <li>Use the <b>start</b> button for quick access to everything.</li>
           <li>Minimise with <b>_</b>, maximise with <b>□</b>, close with <b>✕</b>.</li>
+          <li><b>Right-click</b> the desktop to arrange icons or change the wallpaper, theme and screensaver.</li>
+          <li>Open <b>Command Prompt</b> and type <code>help</code> for a terminal tour.</li>
+          <li>Click the speaker in the tray to mute or unmute sounds.</li>
         </ul>
         <p>Want to talk? <a href="mailto:${PROFILE.email}">${esc(PROFILE.email)}</a></p>
       </div></div>`,
   };
 
+  function buildIcons() {
+    $("#icons").innerHTML = DESKTOP.map(([id, label]) => `<button class="icon" data-app="${id}">${icon(APPS[id].icon)}<span>${esc(label)}</span></button>`).join("");
+  }
+
   function buildDesktop() {
     const wrap = $("#icons");
-    wrap.innerHTML = DESKTOP.map(([id, label]) => `<button class="icon" data-app="${id}">${icon(APPS[id].icon)}<span>${esc(label)}</span></button>`).join("");
+    buildIcons();
     wrap.addEventListener("click", (e) => {
       const b = e.target.closest(".icon");
       wrap.querySelectorAll(".icon").forEach((i) => i.classList.toggle("selected", i === b));
@@ -540,6 +619,7 @@
 
     const item = (entry, big) => {
       if (entry === "sep") return `<li class="sm-sep"></li>`;
+      if (entry === "all") return `<li class="sm-all" data-all><strong>All Programs</strong><b class="sm-arrow">&#9654;</b></li>`;
       const [id, label, sub] = entry;
       return `<li data-app="${id}">${icon(APPS[id].icon)}${big ? `<span><strong>${esc(label)}</strong>${sub ? `<small>${esc(sub)}</small>` : ""}</span>` : esc(label)}</li>`;
     };
@@ -556,6 +636,7 @@
     const app = APPS[id];
     if (!app) return;
     closeStart();
+    if (app.launch) { app.launch(); return; }
     if (windows.has(id)) {
       const w = windows.get(id);
       w.el.classList.remove("minimized");
@@ -601,10 +682,10 @@
     el.addEventListener("touchstart", () => focusWin(id), { passive: true });
     $(".tb-btn.close", el).addEventListener("click", (e) => { e.stopPropagation(); closeWin(id); });
     $(".tb-btn.min", el).addEventListener("click", (e) => { e.stopPropagation(); minimizeWin(id); });
-    $(".tb-btn.max", el)?.addEventListener("click", (e) => { e.stopPropagation(); el.classList.toggle("maximized"); });
+    $(".tb-btn.max", el)?.addEventListener("click", (e) => { e.stopPropagation(); el.classList.toggle("maximized"); sound("restore"); });
     $(".titlebar", el).addEventListener("dblclick", (e) => { if (app.resizable !== false && !e.target.closest(".tb-btn")) el.classList.toggle("maximized"); });
     task.addEventListener("click", () => {
-      if (el.classList.contains("minimized")) { el.classList.remove("minimized"); focusWin(id); }
+      if (el.classList.contains("minimized")) { el.classList.remove("minimized"); focusWin(id); sound("restore"); }
       else if (task.classList.contains("active")) minimizeWin(id);
       else focusWin(id);
     });
@@ -636,6 +717,7 @@
     if (!w) return;
     w.el.classList.add("minimized");
     w.task.classList.remove("active");
+    sound("minimize");
     // focus the next top-most visible window
     let best = null, bestZ = -1;
     windows.forEach((o, key) => {
@@ -726,6 +808,8 @@
   });
   startMenu.addEventListener("click", (e) => {
     e.stopPropagation();
+    const all = e.target.closest("[data-all]");
+    if (all) { openAllPrograms(all); return; }
     const li = e.target.closest("[data-app]");
     if (li) openApp(li.dataset.app);
     const act = e.target.closest("[data-action]");
@@ -735,7 +819,18 @@
       else shutDown();
     }
   });
-  document.addEventListener("click", (e) => { if (!startMenu.contains(e.target)) closeStart(); });
+  function openAllPrograms(anchor) {
+    const r = anchor.getBoundingClientRect();
+    const toItem = (e) => Array.isArray(e)
+      ? { label: e[1], icon: APPS[e[0]].icon, action: () => openApp(e[0]) }
+      : { label: e.label, icon: "folder", submenu: e.submenu.map(toItem) };
+    showMenu(r.right - 4, r.top, ALL_PROGRAMS.map(toItem), { anchorBottom: r.bottom });
+  }
+  startMenu.addEventListener("mouseover", (e) => {
+    const all = e.target.closest("[data-all]");
+    if (all && !document.querySelector(".ctx-menu") && !isMobile()) openAllPrograms(all);
+  });
+  document.addEventListener("click", (e) => { if (!startMenu.contains(e.target) && !e.target.closest(".ctx-menu")) closeStart(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeStart(); });
 
   /* ---------------- Clock ---------------- */
@@ -757,6 +852,7 @@
   setTimeout(toLogin, 3000);
 
   $("#userTile").addEventListener("click", () => {
+    sound("startup");
     login.classList.add("fade-out");
     setTimeout(() => {
       login.classList.add("hidden");
@@ -766,12 +862,13 @@
         openApp("about");
         sessionStorageSet("welcomed", "1");
       }
+      emit("login");
     }, 500);
   });
 
   function closeAll() { [...windows.keys()].forEach(closeWin); cascade = 0; }
-  function logOff() { closeAll(); desktop.classList.add("hidden"); login.classList.remove("hidden"); }
-  function shutDown() { closeAll(); desktop.classList.add("hidden"); shutdown.classList.remove("hidden"); }
+  function logOff() { sound("logoff"); emit("logoff"); closeAll(); desktop.classList.add("hidden"); login.classList.remove("hidden"); }
+  function shutDown() { sound("shutdown"); emit("logoff"); closeAll(); desktop.classList.add("hidden"); shutdown.classList.remove("hidden"); }
   $("#restartBtn").addEventListener("click", () => {
     shutdown.classList.add("hidden");
     booted = false;
@@ -841,12 +938,14 @@
       cells[i].boom = true;
       cells.forEach((c, k) => { if (c.mine) { c.open = true; render(k); } });
       smiley.textContent = "😵";
+      sound("error");
     }
 
     function checkWin() {
       if (opened === W * H - MINES) {
         over = true; clearInterval(timer);
         smiley.textContent = "😎";
+        sound("ding");
         cells.forEach((c, k) => { if (c.mine && !c.flag) { c.flag = true; render(k); } });
         minesLcd.textContent = pad(0);
       }
@@ -888,6 +987,175 @@
     win._cleanup = () => clearInterval(timer);
     reset();
   }
+
+  /* ---------------- Sounds & events ---------------- */
+  function sound(name) { window.XPSound?.play(name); }
+  const listeners = {};
+  function on(evt, fn) { (listeners[evt] = listeners[evt] || []).push(fn); }
+  function emit(evt, data) { (listeners[evt] || []).forEach((fn) => { try { fn(data); } catch (err) { console.error(err); } }); }
+
+  const settings = {
+    get(k, d) { try { const v = localStorage.getItem("xp." + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem("xp." + k, JSON.stringify(v)); } catch { /* ignore */ } },
+  };
+
+  /* ---------------- Architecture diagrams ---------------- */
+  const KINDS = {
+    io: { fill: "#e3f6d9", stroke: "#3d8b1f", label: "Input / output" },
+    proc: { fill: "#e4edfc", stroke: "#2a5bc2", label: "Processing" },
+    model: { fill: "#f3e6fb", stroke: "#7b3fb0", label: "Model" },
+    db: { fill: "#fff3cf", stroke: "#b07d00", label: "Storage / index" },
+    guard: { fill: "#fde7df", stroke: "#c2461d", label: "Reliability" },
+  };
+  function diagram(p) {
+    if (!p.flow) return "";
+    const nodes = p.flow, cols = 3, W = 176, H = 56, GX = 48, GY = 62, PAD = 20;
+    const rows = Math.ceil(nodes.length / cols);
+    const pos = nodes.map((_, i) => {
+      const r = (i / cols) | 0;
+      const c = r % 2 ? cols - 1 - (i % cols) : i % cols;
+      return { x: PAD + c * (W + GX), y: PAD + r * (H + GY) };
+    });
+    const width = PAD * 2 + cols * W + (cols - 1) * GX;
+    const height = PAD * 2 + rows * H + (rows - 1) * GY + (p.loops ? 36 : 0);
+    const edges = [];
+    for (let i = 0; i < nodes.length - 1; i++) {
+      const a = pos[i], b = pos[i + 1];
+      if (a.y === b.y) {
+        const y = a.y + H / 2;
+        const [x1, x2] = b.x > a.x ? [a.x + W, b.x - 3] : [a.x, b.x + W + 3];
+        edges.push(`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="dg-edge" marker-end="url(#dg-arrow)"/>`);
+      } else {
+        const x = a.x + W / 2;
+        edges.push(`<line x1="${x}" y1="${a.y + H}" x2="${x}" y2="${b.y - 3}" class="dg-edge" marker-end="url(#dg-arrow)"/>`);
+      }
+    }
+    (p.loops || []).forEach((l) => {
+      const a = pos[l.from], b = pos[l.to];
+      const ax = a.x + W / 2, bx = b.x + W / 2, y = a.y + H;
+      edges.push(`<path d="M${ax} ${y} C${ax} ${y + 44}, ${bx} ${y + 44}, ${bx} ${y + 4}" class="dg-loop" marker-end="url(#dg-arrow-loop)"/>
+        <text x="${(ax + bx) / 2}" y="${y + 46}" class="dg-loop-label">${esc(l.label)}</text>`);
+    });
+    const boxes = nodes.map((n, i) => {
+      const { x, y } = pos[i], k = KINDS[n.k] || KINDS.proc;
+      return `<g class="dg-node" style="animation-delay:${i * 70}ms">
+        <rect x="${x + 2}" y="${y + 3}" width="${W}" height="${H}" rx="5" fill="rgba(0,0,0,.12)"/>
+        <rect x="${x}" y="${y}" width="${W}" height="${H}" rx="5" fill="${k.fill}" stroke="${k.stroke}" stroke-width="1.5"/>
+        <circle cx="${x + 14}" cy="${y + 14}" r="9" fill="${k.stroke}"/>
+        <text x="${x + 14}" y="${y + 18}" class="dg-num">${i + 1}</text>
+        <text x="${x + W / 2 + 8}" y="${y + 25}" class="dg-title">${esc(n.t)}</text>
+        <text x="${x + W / 2 + 8}" y="${y + 42}" class="dg-sub">${esc(n.s || "")}</text>
+      </g>`;
+    });
+    const used = [...new Set(nodes.map((n) => n.k))];
+    return `<div class="diagram">
+      <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Architecture of ${esc(p.name)}: ${esc(nodes.map((n) => n.t).join(" then "))}">
+        <defs>
+          <marker id="dg-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1d3f8a"/></marker>
+          <marker id="dg-arrow-loop" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c2461d"/></marker>
+        </defs>
+        ${edges.join("")}${boxes.join("")}
+      </svg>
+      <div class="dg-legend">${used.map((k) => `<span><i style="background:${KINDS[k].fill};border-color:${KINDS[k].stroke}"></i>${KINDS[k].label}</span>`).join("")}</div>
+    </div>`;
+  }
+
+  PROJECTS.forEach((p, i) => {
+    APPS["project" + i] = {
+      title: p.name,
+      icon: "folder",
+      size: [760, 560],
+      render: () => `
+        ${explorerChrome(`C:\\Users\\Thejas Haridas\\My Documents\\Projects\\${p.name}`, "folder")}
+        <div class="win-body"><div class="explorer">
+          ${taskpane([
+            { title: "Project Tasks", primary: true, links: [
+              { label: "Back to Projects", icon: "docs", open: "projects" },
+              { label: "View on GitHub", icon: "github", href: PROFILE.github },
+              ...PROJECTS.map((q, j) => j === i ? null : { label: q.name, icon: "folder", open: "project" + j }).filter(Boolean),
+            ] },
+            { title: "Details", html: `<b>${esc(p.name)}</b><br>${esc(p.short)}<br><br>${p.flow.length} pipeline stages` },
+          ])}
+          <div class="content">
+            <h2>${esc(p.name)}</h2>
+            <p class="sub">${esc(p.short)}</p>
+            <p>${esc(p.desc)}</p>
+            <h3>Architecture</h3>
+            ${diagram(p)}
+            <h3>Highlights</h3>
+            <ul>${(p.highlights || []).map((h) => `<li>${esc(h)}</li>`).join("")}</ul>
+            <h3>Tech Stack</h3>
+            <div>${tags(p.stack)}</div>
+          </div>
+        </div></div>
+        <div class="statusbar"><span>${p.flow.length} stages</span><span>My Documents</span></div>`,
+    };
+  });
+
+  /* ---------------- Menus & dialogs ---------------- */
+  function closeMenus() { document.querySelectorAll(".ctx-menu").forEach((m) => m.remove()); }
+  function showMenu(x, y, items, opts = {}) {
+    if (!opts.sub) closeMenus();
+    const m = document.createElement("ul");
+    m.className = "ctx-menu";
+    m.setAttribute("role", "menu");
+    m.innerHTML = items.map((it, i) => it.sep
+      ? `<li class="ctx-sep" role="separator"></li>`
+      : `<li role="menuitem" data-i="${i}" class="${it.disabled ? "disabled" : ""} ${it.bold ? "bold" : ""}">${it.icon ? icon(it.icon) : `<span class="ctx-ico">${it.checked ? "✔" : ""}</span>`}<span>${esc(it.label)}</span>${it.submenu ? `<b class="ctx-arrow">&#9654;</b>` : ""}</li>`).join("");
+    document.body.appendChild(m);
+    const vw = window.innerWidth, vh = window.innerHeight - 30;
+    const left = x + m.offsetWidth > vw ? Math.max(0, (opts.flipX ?? x) - m.offsetWidth) : x;
+    const top = y + m.offsetHeight > vh ? Math.max(0, (opts.anchorBottom ?? vh) - m.offsetHeight) : y;
+    m.style.left = left + "px";
+    m.style.top = top + "px";
+    let child = null;
+    const openSub = (li) => {
+      const it = items[+li.dataset.i];
+      child?.remove(); child = null;
+      if (!it?.submenu || it.disabled) return;
+      const r = li.getBoundingClientRect();
+      child = showMenu(r.right - 3, r.top - 3, it.submenu, { sub: true, flipX: r.left + 3, anchorBottom: r.bottom + 3 });
+    };
+    m.addEventListener("mouseover", (e) => { const li = e.target.closest("li[data-i]"); if (li && !isMobile()) openSub(li); });
+    m.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const li = e.target.closest("li[data-i]");
+      if (!li) return;
+      const it = items[+li.dataset.i];
+      if (it.disabled) return;
+      if (it.submenu) { openSub(li); return; }
+      closeMenus();
+      closeStart();
+      it.action?.();
+    });
+    return m;
+  }
+  document.addEventListener("mousedown", (e) => { if (!e.target.closest(".ctx-menu") && !e.target.closest("[data-all]")) closeMenus(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenus(); });
+
+  let alertCount = 0;
+  function alertBox(title, message, iconKey = "warning") {
+    const id = "alert" + ++alertCount;
+    APPS[id] = {
+      title, icon: iconKey, size: [380, null], resizable: false,
+      render: () => `<div class="win-body flat"><div class="dialog-body">${icon(iconKey)}<div>${message}</div></div>
+        <div class="dialog-actions"><button class="xp-btn" data-ok>OK</button></div></div>`,
+      mount: (win) => { const ok = $("[data-ok]", win); ok.addEventListener("click", () => { closeWin(id); delete APPS[id]; }); ok.focus(); },
+    };
+    sound(iconKey === "info" ? "ding" : "error");
+    openApp(id);
+  }
+
+  /* ---------------- Extensions ---------------- */
+  const api = {
+    APPS, ICONS, DESKTOP, DESKTOP_DEFAULT, START_LEFT, START_RIGHT,
+    data: { PROFILE, EXPERIENCE, PROJECTS, SKILLS, EDUCATION, PUBLICATIONS, CERTS, ACHIEVEMENTS },
+    icon, esc, tags, $, isMobile, explorerChrome, taskpane, diagram,
+    openApp, closeWin, focusWin, windows, buildIcons, showMenu, closeMenus, alert: alertBox,
+    sound, on, emit, settings,
+  };
+  window.XP = api;
+  (window.XPExt || []).forEach((ext) => { try { ext(api); } catch (err) { console.error(err); } });
 
   /* ---------------- Init ---------------- */
   buildDesktop();

@@ -7,6 +7,7 @@
   <meta name="description" content="Portfolio of Thejas Haridas, AI/ML Engineer and Data Scientist from Kochi, Kerala — styled after Windows XP." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='2' y='2' width='13' height='13' fill='%23f35325'/><rect x='17' y='2' width='13' height='13' fill='%2381bc06'/><rect x='2' y='17' width='13' height='13' fill='%2305a6f0'/><rect x='17' y='17' width='13' height='13' fill='%23ffba08'/></svg>" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="apps.css" />
 </head>
 <body>
   <!-- Boot screen -->
@@ -81,7 +82,7 @@
         <span class="tray-ico" title="Network: Connected">
           <svg viewBox="0 0 16 16"><rect x="1" y="3" width="8" height="6" fill="#dfe8f7" stroke="#2a4c8f"/><rect x="7" y="7" width="8" height="6" fill="#dfe8f7" stroke="#2a4c8f"/></svg>
         </span>
-        <span class="tray-ico" title="Volume">
+        <span class="tray-ico vol" id="volIcon" title="Volume" role="button" tabindex="0">
           <svg viewBox="0 0 16 16"><path d="M2 6h3l4-3v10l-4-3H2z" fill="#f4f4f4" stroke="#333"/><path d="M11 5c1.5 1.5 1.5 4.5 0 6" stroke="#fff" fill="none"/></svg>
         </span>
         <span id="clock"></span>
@@ -97,6 +98,12 @@
     </div>
   </div>
 
+  <script src="js/sound.js"></script>
+  <script src="js/cmd.js"></script>
+  <script src="js/paint.js"></script>
+  <script src="js/solitaire.js"></script>
+  <script src="js/winamp.js"></script>
+  <script src="js/extras.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
