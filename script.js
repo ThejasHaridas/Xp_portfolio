@@ -1113,14 +1113,23 @@
       const r = li.getBoundingClientRect();
       child = showMenu(r.right - 3, r.top - 3, it.submenu, { sub: true, flipX: r.left + 3, anchorBottom: r.bottom + 3 });
     };
-    m.addEventListener("mouseover", (e) => { const li = e.target.closest("li[data-i]"); if (li && !isMobile()) openSub(li); });
+    // Like Windows, wait a moment before switching submenus so the pointer can travel diagonally into one.
+    let hoverTimer = null;
+    m.addEventListener("mouseover", (e) => {
+      const li = e.target.closest("li[data-i]");
+      if (!li || isMobile()) return;
+      clearTimeout(hoverTimer);
+      if (child && items[+li.dataset.i]?.submenu && child.dataset.from === li.dataset.i) return;
+      hoverTimer = setTimeout(() => { openSub(li); if (child) child.dataset.from = li.dataset.i; }, child ? 350 : 120);
+    });
+    m.addEventListener("mouseleave", () => clearTimeout(hoverTimer));
     m.addEventListener("click", (e) => {
       e.stopPropagation();
       const li = e.target.closest("li[data-i]");
       if (!li) return;
       const it = items[+li.dataset.i];
       if (it.disabled) return;
-      if (it.submenu) { openSub(li); return; }
+      if (it.submenu) { clearTimeout(hoverTimer); openSub(li); if (child) child.dataset.from = li.dataset.i; return; }
       closeMenus();
       closeStart();
       it.action?.();
