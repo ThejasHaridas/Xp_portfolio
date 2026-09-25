@@ -455,7 +455,7 @@
       icon: "ie",
       size: [620, 440],
       render: () => `
-        ${explorerChrome("http://www.thejas-haridas.com/links", "ie")}
+        ${explorerChrome("https://thejasharidas.github.io/links", "ie")}
         <div class="win-body"><div class="ie-page">
           <h1>Find me on the web</h1>
           <div class="link-list">

@@ -1,5 +1,7 @@
 # Thejas Haridas — Windows XP Portfolio
 
+**Live:** https://thejasharidas.github.io/
+
 A portfolio site inspired by Windows XP. It's plain HTML, CSS and JavaScript with no build step and no dependencies.
 
 **Features**
